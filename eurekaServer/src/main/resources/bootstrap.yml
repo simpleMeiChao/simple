@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      name: eureka-config
+      profile: dev
+      uri: http://localhost:8061/
+      label: dev

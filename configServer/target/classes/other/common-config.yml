@@ -1,0 +1,10 @@
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8060/eureka
+
+mybatis:
+  type-aliases-package: com.mc.entity
+  mapper-locations: classpath:/mapper/*.xml

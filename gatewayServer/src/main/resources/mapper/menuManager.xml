@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mc.dao.MenuManagerDao">
+
+    <insert id="insert" parameterType="FormMap" keyProperty="id" useGeneratedKeys="true">
+        insert into t_menu_info(menu_name,
+                                menu_route,
+                                parent_id,
+                                create_time,
+                                last_update_user)
+        values (#{menuName}, #{menuRoute}, #{parentId}, #{createTime}, #{updateUser})
+    </insert>
+
+    <update id="update" parameterType="FormMap">
+        update t_menu_info
+        <set>
+            <if test="menuName != null and menuName !=''">
+                menu_name = #{menuName},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId},
+            </if>
+            <if test="updateTime != null">
+                create_time = #{updateTime},
+            </if>
+            <if test="updateUser != null">
+                last_update_user = #{updateUser},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        delete
+        from t_menu_info
+        where id = #{id}
+    </delete>
+
+    <select id="findMenuList" parameterType="FormMap" resultType="FormMap">
+        select
+        id,
+        menu_name menuName,
+        menu_route menuRoute,
+        parent_id parentId,
+        create_time createTime,
+        last_update_user updateUser
+        from t_menu_info
+        where 1 = 1
+        <if test="menuName != null and menuName !=''">
+            and menu_name = #{menuName}
+        </if>
+        order by create_time desc,parentId desc
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+    <select id="findMenuListCount" parameterType="FormMap" resultType="int">
+        select
+        count(1)
+        from t_menu_info
+        where 1 = 1
+        <if test="menuName != null and menuName !=''">
+            and menu_name = #{menuName}
+        </if>
+    </select>
+
+    <select id="findAll" parameterType="FormMap" resultType="Menu">
+        select
+        id,
+        menu_name menuName,
+        menu_route menuRoute,
+        parent_id parentId
+        from t_menu_info
+    </select>
+
+</mapper>

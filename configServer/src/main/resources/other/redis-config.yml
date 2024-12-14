@@ -1,0 +1,13 @@
+spring:
+  redis:
+    database: 3  # redis数据库索引  默认0
+    host: localhost  # 服务地址
+    port: 6379  # 端口
+    timeout: PT10S  # 连接超时等待10秒
+    password: 421127  # 访问密码
+    lettuce:
+      pool:
+        max-active: 16 # 连接池最大连接数  默认8
+        max-idle: 8  # 最大空闲连接  默认8
+        min-idle: 1 # 最小空闲连接 默认0
+        max-wait: PT10S # 最大阻塞等待时间 默认-1 无限

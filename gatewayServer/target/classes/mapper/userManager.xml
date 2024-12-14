@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mc.dao.UserManagerDao">
+
+    <insert id="insert" parameterType="FormMap" keyProperty="id" useGeneratedKeys="true">
+        insert into t_user_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            uid,
+            user_name,
+            user_name_cn,
+            password,
+            <if test="email != null">
+                email,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            create_time,
+            last_update_user,
+            user_type,
+            <if test="userDesc != null">
+                user_desc,
+            </if>
+            user_key,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{uid, jdbcType=VARCHAR},
+            #{userName, jdbcType=VARCHAR},
+            #{userNameCn, jdbcType=VARCHAR},
+            #{password, jdbcType=VARCHAR},
+            <if test="email != null">
+                #{email, jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                #{phone, jdbcType=VARCHAR},
+            </if>
+            #{createTime, jdbcType=VARCHAR},
+            #{operator, jdbcType=VARCHAR},
+            #{userType, jdbcType=INTEGER},
+            <if test="userDesc != null">
+                #{userDesc, jdbcType=VARCHAR},
+            </if>
+            #{userKey, jdbcType=VARCHAR},
+        </trim>
+    </insert>
+
+    <select id="findUserByName" parameterType="String" resultType="FormMap">
+        select id,
+               uid,
+               user_name userName,
+               password,
+               user_key  userKey
+        from t_user_info
+        where LOWER(user_name) = LOWER(#{userName})
+    </select>
+
+    <select id="queryRoles" parameterType="java.lang.Integer" resultType="java.lang.String">
+        select role_name roleName
+        from t_role_info
+        where id IN (select distinct role_id
+                     from t_user_role_join
+                     where user_id = #{userId})
+    </select>
+
+    <insert id="insertUserRoleJoin" parameterType="FormMap">
+        insert into t_user_role_join(user_id,role_id)
+        values
+        <foreach collection="roleIds" index="index" item="item" separator=",">
+            (
+            #{id, jdbcType=INTEGER},
+            #{item, jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
+    <select id="findUserList" parameterType="FormMap" resultType="FormMap">
+        select
+        id,
+        uid,
+        user_name userName,
+        user_name_cn userNameCn,
+        email,
+        phone,
+        create_time createTime,
+        last_update_user updateUser,
+        case user_type when 0 then '系统管理员' when 1 then '租户管理员' when 2 then '普通用户' else '' end
+        userType,
+        user_desc userDesc
+        from t_user_info where 1 = 1
+        <if test="userType != null">
+            and user_type = #{userType}
+        </if>
+        <if test="keyWord != null and keyWord !=''">
+            and (
+            LOWER(user_name) like CONCAT('%', LOWER(#{keyWord}), '%') or
+            LOWER(user_name_cn) like CONCAT('%', LOWER(#{keyWord}), '%') or
+            LOWER(email) like CONCAT('%', LOWER(#{keyWord}), '%') or
+            LOWER(phone) like CONCAT('%', LOWER(#{keyWord}), '%')
+            )
+        </if>
+        order by create_time desc
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+    <select id="findUserListCount" parameterType="FormMap" resultType="int">
+        select
+        count(1)
+        from t_user_info where 1 = 1
+        <if test="userType != null">
+            and user_type = #{userType}
+        </if>
+        <if test="keyWord != null and keyWord !=''">
+            and (
+            LOWER(user_name) like CONCAT('%', LOWER(#{keyWord}), '%') or
+            LOWER(user_name_cn) like CONCAT('%', LOWER(#{keyWord}), '%') or
+            LOWER(email) like CONCAT('%', LOWER(#{keyWord}), '%') or
+            LOWER(phone) like CONCAT('%', LOWER(#{keyWord}), '%')
+            )
+        </if>
+    </select>
+
+    <update id="update" parameterType="FormMap">
+        update t_user_info
+        <set>
+            <if test="userNameCn != null and userNameCn != ''">
+                user_name_cn = #{userNameCn},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="userDesc != null">
+                user_desc = #{userDesc},
+            </if>
+            <if test="updateTime != null">
+                create_time = #{updateTime},
+            </if>
+            <if test="updateUser != null">
+                last_update_user = #{updateUser},
+            </if>
+        </set>
+        where id = #{id}
+        and uid = #{uid}
+    </update>
+
+    <delete id="delete" parameterType="FormMap">
+        delete
+        from t_user_info
+        where id = #{id}
+          and uid = #{uid}
+    </delete>
+
+</mapper>

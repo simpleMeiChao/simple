@@ -1,0 +1,22 @@
+server:
+  port: 8060
+
+spring:
+  application:
+    name: eureka-service
+
+eureka:
+  client:
+    register-with-eureka: false # 不把自己注册到eureka服务列表
+    fetch-registry: false
+    service-url:
+      defaultZone: http://localhost:8060/eureka
+  server:
+    enable-self-preservation: false # 关闭自我保护
+    eviction-interval-timer-in-ms: 5000 # 每隔5秒钟，进行一次服务列表的清理
+
+  instance:
+    instance-id: ${eureka.instance.hostname}:${spring.application.name}:${server.port}
+    hostname: localhost
+    prefer-ip-address: true
+

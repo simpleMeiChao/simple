@@ -1,0 +1,15 @@
+server:
+  port: 8061
+
+spring:
+  profiles:
+    active: native  #使用本地配置
+
+  application:
+    name: config-service
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/other
+      label: dev

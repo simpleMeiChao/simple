@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      name: routes-config,gateway-config,common-config,redis-config
+      profile: dev
+      uri: http://localhost:8061/
+      label: dev

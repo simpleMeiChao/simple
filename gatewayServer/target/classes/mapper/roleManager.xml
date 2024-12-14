@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mc.dao.RoleManagerDao">
+
+    <insert id="insert" parameterType="FormMap" keyProperty="id" useGeneratedKeys="true">
+        insert into t_role_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            role_name,
+            role_desc,
+            role_type,
+            create_time,
+            last_update_user,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{roleName, jdbcType=VARCHAR},
+            #{roleDesc, jdbcType=VARCHAR},
+            #{roleType, jdbcType=INTEGER},
+            #{updateTime, jdbcType=VARCHAR},
+            #{updateUser, jdbcType=VARCHAR},
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="FormMap">
+        update t_role_info
+        <set>
+            <if test="roleName != null and roleName !=''">
+                role_name = #{roleName},
+            </if>
+            <if test="roleDesc != null and roleDesc !=''">
+                role_desc = #{roleDesc},
+            </if>
+            <if test="roleType != null">
+                role_type = #{roleType},
+            </if>
+            <if test="updateTime != null">
+                create_time = #{updateTime},
+            </if>
+            <if test="updateUser != null">
+                last_update_user = #{updateUser},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        delete
+        from t_role_info
+        where id = #{id}
+    </delete>
+
+    <select id="findRoleList" parameterType="FormMap" resultType="FormMap">
+        select
+        id,
+        role_name roleName,
+        role_desc roleDesc,
+        case role_type when 0 then '系统管理角色' else '用户角色' end roleType,
+        create_time createTime,
+        last_update_user updateUser
+        from t_role_info
+        where 1 = 1
+        <if test="keyWord != null and keyWord !=''">
+            and (
+            LOWER(role_name) like CONCAT('%', LOWER(#{keyWord}), '%') or
+            LOWER(role_desc) like CONCAT('%', LOWER(#{keyWord}), '%')
+            )
+        </if>
+        order by create_time desc
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+    <select id="findRoleListCount" parameterType="FormMap" resultType="int">
+        select
+        count(1)
+        from t_role_info
+        where 1 = 1
+        <if test="keyWord != null and keyWord !=''">
+            and (
+            LOWER(role_name) like CONCAT('%', LOWER(#{keyWord}), '%') or
+            LOWER(role_desc) like CONCAT('%', LOWER(#{keyWord}), '%')
+            )
+        </if>
+    </select>
+
+    <select id="findAll" resultType="FormMap">
+        select id,
+               role_name roleName,
+               role_desc roleDesc
+        from t_role_info
+        where role_type = 1
+    </select>
+
+    <select id="findCurrentUserRole" parameterType="String" resultType="FormMap">
+        select a.id,
+               a.role_name roleName,
+               a.role_desc roleDesc
+        from t_role_info a
+                 INNER JOIN t_user_role_join b
+                            ON a.id = b.role_id
+                 INNER JOIN t_user_info c
+                            ON b.user_id = c.id
+                                and c.user_name = #{userName}
+    </select>
+
+</mapper>
